@@ -58,10 +58,16 @@ class Attention(tf.keras.layers.Layer):
             x = tf.transpose(x, [0, 2, 1, 3])  # --> [batch, length, num_heads, depth]
             return tf.reshape(x, [batch_size, length, self.hidden_size])
 
-    def call(self, x, y, bias, training):
+    def call(self, x, y, bias, training, cache=None):
         q = self.q_dense_layer(x)
         k = self.k_dense_layer(y)
         v = self.v_dense_layer(y)
+
+        if cache is not None:
+            key = tf.concat([tf.cast(cache['k'], k.dtype), k], axis=1)
+            value = tf.concat([tf.cast(cache['v'], v.dtype), v], axis=1)
+            cache['k'] = key
+            cache['v'] = value
 
         q = self.split_heads(q)
         k = self.split_heads(k)
@@ -86,8 +92,8 @@ class Attention(tf.keras.layers.Layer):
 
 class SelfAttention(Attention):
     """Multiheaded self-attention layer."""
-    def call(self, x, bias, training):
-        return super(SelfAttention, self).call(x, x, bias, training)
+    def call(self, x, bias, training, cache=None):
+        return super(SelfAttention, self).call(x, x, bias, training, cache)
 
 
 def test_attention_layer():

@@ -4,7 +4,10 @@ import tensorflow as tf
 
 
 class FeedForwardNetwork(tf.keras.layers.Layer):
+    """Fully connected feedforward network."""
+
     def __init__(self, hidden_size, filter_size, relu_dropout):
+        """Initialize FeedForwardNetwork."""
         super(FeedForwardNetwork, self).__init__()
         self.hidden_size = hidden_size
         self.filter_size = filter_size
@@ -18,6 +21,7 @@ class FeedForwardNetwork(tf.keras.layers.Layer):
             name='filter_layer')
         self.output_dense_layer = tf.keras.layers.Dense(
             self.hidden_size, use_bias=True, name='output_layer')
+        super(FeedForwardNetwork, self).build(input_shape)
 
     def get_config(self):
         return {
@@ -29,9 +33,6 @@ class FeedForwardNetwork(tf.keras.layers.Layer):
     def call(self, x, training):
         """Return outputs of the feedforward network."""
         # x [batch_size, length, hidden_size]
-        batch_size = tf.shape(x)[0]
-        length = tf.shape(x)[1]
-
         output = self.filter_dense_layer(x)
         if training:
             output = tf.nn.dropout(output, rate=self.relu_dropout)
