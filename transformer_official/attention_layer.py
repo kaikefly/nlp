@@ -81,7 +81,7 @@ class Attention(tf.keras.layers.Layer):
         logits += bias
         weights = tf.nn.softmax(logits, name='attention_weights')
         if training:
-            weights = tf.nn.dropout(weights, 1.0 - self.attention_dropout)
+            weights = tf.nn.dropout(weights, self.attention_dropout)
         attention_output = tf.matmul(weights, v)
 
         # recombine heads-> [batch_size, length, hidden_size]
